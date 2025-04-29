@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.2 <0.9.0;
+
 import "@openzeppelin/contracts/proxy/Clones.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
 
 /**
  * @title Second exercise of the Solidity Programming Language module
@@ -26,14 +27,8 @@ contract Agenda_1 {
      * @param name The name of the contact
      */
     function setContact(address addr, string memory name) public {
-        require(
-            agendaReverse[name] == address(0),
-            "A contact with this name already exists"
-        );
-        require(
-            bytes(agenda[addr]).length == 0,
-            "A contact with this address already exists"
-        );
+        require(agendaReverse[name] == address(0), "A contact with this name already exists");
+        require(bytes(agenda[addr]).length == 0, "A contact with this address already exists");
         agenda[addr] = name;
         agendaReverse[name] = addr;
         contacts.push(addr);
@@ -46,10 +41,7 @@ contract Agenda_1 {
      */
     function updateContact(address addr, string memory name) public {
         require(bytes(agenda[addr]).length > 0, "The contact does not exist");
-        require(
-            agendaReverse[name] == address(0),
-            "A contact with this name already exists"
-        );
+        require(agendaReverse[name] == address(0), "A contact with this name already exists");
         agenda[addr] = name;
         agendaReverse[name] = addr;
     }
@@ -69,15 +61,8 @@ contract Agenda_1 {
      * @param name The name of the contact
      * @return The address of the contact
      */
-    function getContactAddress(string memory name)
-        public
-        view
-        returns (address)
-    {
-        require(
-            agendaReverse[name] != address(0),
-            "The contact does not exist"
-        );
+    function getContactAddress(string memory name) public view returns (address) {
+        require(agendaReverse[name] != address(0), "The contact does not exist");
         return agendaReverse[name];
     }
 
@@ -130,20 +115,11 @@ contract Agenda_2_factory {
         _;
     }
 
-    function getAgendaAddress(uint256 idAgenda)
-        public
-        view
-        agendaExists(idAgenda)
-        returns (address)
-    {
+    function getAgendaAddress(uint256 idAgenda) public view agendaExists(idAgenda) returns (address) {
         return address(agendas[idAgenda]);
     }
 
-    function setContact(
-        uint256 idAgenda,
-        address direccion,
-        string memory nombre
-    ) public agendaExists(idAgenda) {
+    function setContact(uint256 idAgenda, address direccion, string memory nombre) public agendaExists(idAgenda) {
         agendas[idAgenda].setContact(direccion, nombre);
     }
 
@@ -165,21 +141,11 @@ contract Agenda_2_factory {
         return agendas[idAgenda].getContactAddress(nombre);
     }
 
-    function getAllContactsAddress(uint256 idAgenda)
-        public
-        view
-        agendaExists(idAgenda)
-        returns (address[] memory)
-    {
+    function getAllContactsAddress(uint256 idAgenda) public view agendaExists(idAgenda) returns (address[] memory) {
         return agendas[idAgenda].getAllContactsAddress();
     }
 
-    function getAllContactsName(uint256 idAgenda)
-        public
-        view
-        agendaExists(idAgenda)
-        returns (string[] memory)
-    {
+    function getAllContactsName(uint256 idAgenda) public view agendaExists(idAgenda) returns (string[] memory) {
         return agendas[idAgenda].getAllContactsName();
     }
 }
@@ -214,20 +180,11 @@ contract Agenda_2_minimal_proxy {
         _;
     }
 
-    function getAgendaAddress(uint256 idAgenda)
-        public
-        view
-        agendaExists(idAgenda)
-        returns (address)
-    {
+    function getAgendaAddress(uint256 idAgenda) public view agendaExists(idAgenda) returns (address) {
         return address(agendas[idAgenda]);
     }
 
-    function setContact(
-        uint256 idAgenda,
-        address direccion,
-        string memory nombre
-    ) public agendaExists(idAgenda) {
+    function setContact(uint256 idAgenda, address direccion, string memory nombre) public agendaExists(idAgenda) {
         Agenda_1(agendas[idAgenda]).setContact(direccion, nombre);
     }
 
@@ -249,21 +206,11 @@ contract Agenda_2_minimal_proxy {
         return Agenda_1(agendas[idAgenda]).getContactAddress(nombre);
     }
 
-    function getAllContactsAddress(uint256 idAgenda)
-        public
-        view
-        agendaExists(idAgenda)
-        returns (address[] memory)
-    {
+    function getAllContactsAddress(uint256 idAgenda) public view agendaExists(idAgenda) returns (address[] memory) {
         return Agenda_1(agendas[idAgenda]).getAllContactsAddress();
     }
 
-    function getAllContactsName(uint256 idAgenda)
-        public
-        view
-        agendaExists(idAgenda)
-        returns (string[] memory)
-    {
+    function getAllContactsName(uint256 idAgenda) public view agendaExists(idAgenda) returns (string[] memory) {
         return Agenda_1(agendas[idAgenda]).getAllContactsName();
     }
 }
@@ -294,14 +241,8 @@ contract Agenda_3 is Initializable, OwnableUpgradeable {
      * @param name The name of the contact
      */
     function setContact(address addr, string memory name) public onlyOwner {
-        require(
-            agendaReverse[name] == address(0),
-            "A contact with this name already exists"
-        );
-        require(
-            bytes(agenda[addr]).length == 0,
-            "A contact with this address already exists"
-        );
+        require(agendaReverse[name] == address(0), "A contact with this name already exists");
+        require(bytes(agenda[addr]).length == 0, "A contact with this address already exists");
         agenda[addr] = name;
         agendaReverse[name] = addr;
         contacts.push(addr);
@@ -314,10 +255,7 @@ contract Agenda_3 is Initializable, OwnableUpgradeable {
      */
     function updateContact(address addr, string memory name) public onlyOwner {
         require(bytes(agenda[addr]).length > 0, "The contact does not exist");
-        require(
-            agendaReverse[name] == address(0),
-            "A contact with this name already exists"
-        );
+        require(agendaReverse[name] == address(0), "A contact with this name already exists");
         agenda[addr] = name;
         agendaReverse[name] = addr;
     }
@@ -327,12 +265,7 @@ contract Agenda_3 is Initializable, OwnableUpgradeable {
      * @param addr The address of the contact
      * @return The name of the contact
      */
-    function getContactName(address addr)
-        public
-        view
-        onlyOwner
-        returns (string memory)
-    {
+    function getContactName(address addr) public view onlyOwner returns (string memory) {
         require(bytes(agenda[addr]).length > 0, "The contact does not exist");
         return agenda[addr];
     }
@@ -342,16 +275,8 @@ contract Agenda_3 is Initializable, OwnableUpgradeable {
      * @param name The name of the contact
      * @return The address of the contact
      */
-    function getContactAddress(string memory name)
-        public
-        view
-        onlyOwner
-        returns (address)
-    {
-        require(
-            agendaReverse[name] != address(0),
-            "The contact does not exist"
-        );
+    function getContactAddress(string memory name) public view onlyOwner returns (address) {
+        require(agendaReverse[name] != address(0), "The contact does not exist");
         return agendaReverse[name];
     }
 
@@ -359,12 +284,7 @@ contract Agenda_3 is Initializable, OwnableUpgradeable {
      * @notice Get all contacts from the agenda
      * @return The list of contacts
      */
-    function getAllContactsAddress()
-        public
-        view
-        onlyOwner
-        returns (address[] memory)
-    {
+    function getAllContactsAddress() public view onlyOwner returns (address[] memory) {
         return contacts;
     }
 
@@ -375,12 +295,7 @@ contract Agenda_3 is Initializable, OwnableUpgradeable {
      * @return The list of contacts
      * @dev This function should be on the frontend
      */
-    function getAllContactsName()
-        public
-        view
-        onlyOwner
-        returns (string[] memory)
-    {
+    function getAllContactsName() public view onlyOwner returns (string[] memory) {
         uint256 length = contacts.length;
         string[] memory names = new string[](length);
         for (uint256 i = 0; i < length; i++) {
@@ -399,6 +314,7 @@ contract Agenda_3 is Initializable, OwnableUpgradeable {
 contract Agenda_3_minimal_proxy {
     using Clones for address;
     // The address of the Agenda_3 contract that will be used as a template
+
     address public agenda;
     // The list of all agendas created
     address[] public agendas;
@@ -436,8 +352,7 @@ contract Agenda_4 is Initializable, OwnableUpgradeable {
 
     modifier userAllowed() {
         require(
-            msg.sender == owner() ||
-                expirationDates[msg.sender] > block.timestamp,
+            msg.sender == owner() || expirationDates[msg.sender] > block.timestamp,
             "You are not allowed to access this agenda"
         );
         _;
@@ -459,14 +374,8 @@ contract Agenda_4 is Initializable, OwnableUpgradeable {
      * @param name The name of the contact
      */
     function setContact(address addr, string memory name) public onlyOwner {
-        require(
-            agendaReverse[name] == address(0),
-            "A contact with this name already exists"
-        );
-        require(
-            bytes(agenda[addr]).length == 0,
-            "A contact with this address already exists"
-        );
+        require(agendaReverse[name] == address(0), "A contact with this name already exists");
+        require(bytes(agenda[addr]).length == 0, "A contact with this address already exists");
         agenda[addr] = name;
         agendaReverse[name] = addr;
         contacts.push(addr);
@@ -479,10 +388,7 @@ contract Agenda_4 is Initializable, OwnableUpgradeable {
      */
     function updateContact(address addr, string memory name) public onlyOwner {
         require(bytes(agenda[addr]).length > 0, "The contact does not exist");
-        require(
-            agendaReverse[name] == address(0),
-            "A contact with this name already exists"
-        );
+        require(agendaReverse[name] == address(0), "A contact with this name already exists");
         agenda[addr] = name;
         agendaReverse[name] = addr;
     }
@@ -492,12 +398,7 @@ contract Agenda_4 is Initializable, OwnableUpgradeable {
      * @param addr The address of the contact
      * @return The name of the contact
      */
-    function getContactName(address addr)
-        public
-        view
-        userAllowed
-        returns (string memory)
-    {
+    function getContactName(address addr) public view userAllowed returns (string memory) {
         require(bytes(agenda[addr]).length > 0, "The contact does not exist");
         return agenda[addr];
     }
@@ -507,16 +408,8 @@ contract Agenda_4 is Initializable, OwnableUpgradeable {
      * @param name The name of the contact
      * @return The address of the contact
      */
-    function getContactAddress(string memory name)
-        public
-        view
-        userAllowed
-        returns (address)
-    {
-        require(
-            agendaReverse[name] != address(0),
-            "The contact does not exist"
-        );
+    function getContactAddress(string memory name) public view userAllowed returns (address) {
+        require(agendaReverse[name] != address(0), "The contact does not exist");
         return agendaReverse[name];
     }
 
@@ -524,12 +417,7 @@ contract Agenda_4 is Initializable, OwnableUpgradeable {
      * @notice Get all contacts from the agenda
      * @return The list of contacts
      */
-    function getAllContactsAddress()
-        public
-        view
-        userAllowed
-        returns (address[] memory)
-    {
+    function getAllContactsAddress() public view userAllowed returns (address[] memory) {
         return contacts;
     }
 
@@ -540,12 +428,7 @@ contract Agenda_4 is Initializable, OwnableUpgradeable {
      * @return The list of contacts
      * @dev This function should be on the frontend
      */
-    function getAllContactsName()
-        public
-        view
-        userAllowed
-        returns (string[] memory)
-    {
+    function getAllContactsName() public view userAllowed returns (string[] memory) {
         uint256 length = contacts.length;
         string[] memory names = new string[](length);
         for (uint256 i = 0; i < length; i++) {
@@ -558,6 +441,7 @@ contract Agenda_4 is Initializable, OwnableUpgradeable {
 contract Agenda_4_minimal_proxy {
     using Clones for address;
     // The address of the Agenda_4 contract that will be used as a template
+
     address public agenda;
     // The list of all agendas created
     address[] public agendas;
