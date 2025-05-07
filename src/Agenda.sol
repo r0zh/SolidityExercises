@@ -2,8 +2,8 @@
 pragma solidity >=0.8.2 <0.9.0;
 
 import "@openzeppelin/contracts/proxy/Clones.sol";
-import "@openzeppelin/contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 /**
  * @title Second exercise of the Solidity Programming Language module

@@ -1,23 +1,20 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.2 <0.9.0;
 
-import "hardhat/console.sol";
-
 /**
  * @title Bank
  * @dev A simple bank contract that allows deposits, withdrawals, and loans
  */
 contract Bank {
-    
     struct Loan {
-        uint amount;
-        uint startDate;
+        uint256 amount;
+        uint256 startDate;
     }
 
-    mapping(address => uint) private balances;
+    mapping(address => uint256) private balances;
     mapping(address => Loan) private loans;
-    uint public deposited;
-    address immutable owner;  // immutable for gas optimization
+    uint256 public deposited;
+    address immutable owner; // immutable for gas optimization
 
     constructor() payable {
         deposited += msg.value;
@@ -45,20 +42,20 @@ contract Bank {
      */
     function withdraw(uint256 amount) external {
         address borrower = msg.sender;
-        
+
         require(balances[borrower] >= amount, "You don't have enough money in the bank");
         require(address(this).balance >= amount, "The bank doesn't have enough funds to pay you");
-        
+
         balances[borrower] -= amount;
         deposited -= amount;
-        
+
         payable(borrower).transfer(amount);
     }
 
     /**
      * @dev Returns the balance of the caller's account
      */
-    function checkBalance() external view returns (uint) {
+    function checkBalance() external view returns (uint256) {
         return balances[msg.sender];
     }
 
@@ -68,19 +65,19 @@ contract Bank {
      */
     function getLoan(uint256 amount) external {
         address borrower = msg.sender;
-        
+
         // Check that user doesn't borrow more than 95% of bank balance
         require(amount <= (deposited * 95) / 100, "You are trying to borrow more than 95% of bank balance");
-        
-        uint realBalance = balances[borrower] - loans[borrower].amount;
+
+        uint256 realBalance = balances[borrower] - loans[borrower].amount;
         // Check that user doesn't borrow more than half their real balance
         require(amount <= realBalance / 2, "You can't borrow more than half your real balance in the bank");
-        
+
         // If this is a new loan, set the start date
-        if(loans[borrower].amount == 0) {
+        if (loans[borrower].amount == 0) {
             loans[borrower].startDate = block.timestamp;
-        } 
-        
+        }
+
         loans[borrower].amount += amount;
         balances[borrower] += amount;
     }
@@ -90,7 +87,7 @@ contract Bank {
      * @param borrower The address of the borrower
      * @return The interest amount (1 wei per hour)
      */
-    function computeInterest(address borrower) public view returns (uint) {
+    function computeInterest(address borrower) public view returns (uint256) {
         // Interest = 1 wei per hour
         require(loans[borrower].amount > 0, "That address does not have a loan");
         return (block.timestamp - loans[borrower].startDate) / 3600;
@@ -101,7 +98,7 @@ contract Bank {
      * @param borrower The address of the borrower
      * @return The total repayment amount
      */
-    function computeLoanRepayment(address borrower) public view returns (uint) {
+    function computeLoanRepayment(address borrower) public view returns (uint256) {
         return loans[borrower].amount + computeInterest(borrower);
     }
 
@@ -110,11 +107,11 @@ contract Bank {
      */
     function payLoanWithEth() external payable {
         address borrower = msg.sender;
-        uint repaymentAmount = computeLoanRepayment(borrower);
-        
+        uint256 repaymentAmount = computeLoanRepayment(borrower);
+
         require(msg.value == repaymentAmount, "You need to pay the exact amount to resolve your loan");
-        
-        uint interest = computeInterest(borrower);
+
+        uint256 interest = computeInterest(borrower);
         payable(owner).transfer(interest);
         deposited += loans[borrower].amount;
         loans[borrower].amount = 0;
@@ -125,13 +122,13 @@ contract Bank {
      */
     function payLoanFromBankAcount() external {
         address borrower = msg.sender;
-        uint repaymentAmount = computeLoanRepayment(borrower);
-        uint realBalance = balances[borrower] - loans[borrower].amount;
-        
+        uint256 repaymentAmount = computeLoanRepayment(borrower);
+        uint256 realBalance = balances[borrower] - loans[borrower].amount;
+
         require(realBalance >= repaymentAmount, "You don't have enough money in the bank to pay the loan");
-        
+
         balances[borrower] -= repaymentAmount;
-        uint interest = computeInterest(borrower);
+        uint256 interest = computeInterest(borrower);
         payable(owner).transfer(interest);
         deposited -= interest;
         loans[borrower].amount = 0;
@@ -152,5 +149,13 @@ contract Bank {
     function checkBorrowerLoan(address borrower) external view returns (uint256) {
         require(loans[borrower].amount > 0, "That address doesn't have any loans");
         return computeLoanRepayment(borrower);
+    }
+
+    /**
+     * @notice Allows the contract to receive ETH
+     * @dev If someone sends ETH to the contract, it will be added to the deposited amount as a donation
+     */
+    receive() external payable {
+        deposited += msg.value;
     }
 }
