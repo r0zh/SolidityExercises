@@ -2,7 +2,11 @@
 pragma solidity >=0.8.2 <0.9.0;
 
 import "forge-std/Test.sol";
-import "../src/ChargingStation.sol";
+import "../src/ChargingStation.sol"; // Import the contract under test
+
+// Import specific errors from OpenZeppelin contracts
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 
 contract ChargingStation_v2_Test is Test {
     ChargingStation_v2 public chargingStation;
@@ -13,6 +17,8 @@ contract ChargingStation_v2_Test is Test {
     // Events
     event ChargingStarted(address indexed user, uint256 timestamp, uint8 chargerIndex);
     event CostCharged(address indexed user, uint256 cost);
+    event Paused(address account);
+    event Unpaused(address account);
 
     function setUp() public {
         vm.prank(alice);
@@ -250,5 +256,90 @@ contract ChargingStation_v2_Test is Test {
         vm.prank(bob);
         vm.expectRevert("Insufficient payment");
         chargingStation.stopCharging{value: expectedCost - 1}(usedChargerIndex);
+    }
+
+    // =========================================================================
+    // Pause and Unpause Functionality Tests
+    // =========================================================================
+
+    function test_ownerCanPauseAndUnpause() public {
+        assertFalse(chargingStation.paused(), "Contract should not be paused initially");
+
+        vm.prank(alice);
+        // For events with non-indexed parameters, they are in the data.
+        // topic0 (event signature) is always checked by `emit Paused(alice)`.
+        // We are not checking topic1, topic2, topic3. We are checking data.
+        vm.expectEmit(false, false, false, true);
+        emit Paused(alice);
+        chargingStation.pause();
+        assertTrue(chargingStation.paused(), "Contract should be paused after owner pauses");
+
+        vm.prank(alice);
+        vm.expectEmit(false, false, false, true);
+        emit Unpaused(alice);
+        chargingStation.unpause();
+        assertFalse(chargingStation.paused(), "Contract should be unpaused after owner unpauses");
+    }
+
+    function test_nonOwnerCannotPause() public {
+        // vm.expectRevert("Ownable: caller is not the owner");
+        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, bob));
+        vm.prank(bob);
+        chargingStation.pause();
+    }
+
+    function test_nonOwnerCannotUnpause() public {
+        vm.prank(alice);
+        chargingStation.pause(); // Owner pauses first
+
+        // vm.expectRevert("Ownable: caller is not the owner");
+        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, bob));
+        vm.prank(bob);
+        chargingStation.unpause();
+    }
+
+    function test_startCharging_whenPaused() public {
+        vm.prank(alice);
+        chargingStation.pause();
+
+        vm.expectRevert(abi.encodeWithSelector(Pausable.EnforcedPause.selector));
+        vm.prank(bob);
+        chargingStation.startCharging();
+    }
+
+    function test_functionsWork_afterUnpause() public {
+        vm.prank(alice);
+        chargingStation.pause();
+        assertTrue(chargingStation.paused(), "Contract should be paused");
+
+        vm.prank(alice);
+        chargingStation.unpause();
+        assertFalse(chargingStation.paused(), "Contract should be unpaused");
+
+        // Test startCharging
+        vm.prank(bob);
+        chargingStation.startCharging();
+        (address u, uint256 startTime) = chargingStation.chargingSessions(0); // Assuming Bob gets charger 0
+        assertEq(u, bob, "Bob should be charging on charger 0");
+        assertTrue(startTime > 0, "Start time should be set for charger 0");
+
+        // Warp time a bit to simulate charging duration
+        skip(5 * 60); // Skip 5 minutes
+
+        // Test stopCharging
+        uint256 costFor5Min = 5 * chargingStation.costPerMinute();
+
+        // Deal Bob exactly enough for this transaction to check his balance becomes 0
+        vm.deal(bob, costFor5Min);
+
+        vm.prank(bob);
+        chargingStation.stopCharging{value: costFor5Min}(0); // Bob pays costFor5Min from charger 0
+
+        (u, startTime) = chargingStation.chargingSessions(0);
+        assertEq(u, address(0), "Charger 0 should be available after stopping");
+        assertEq(startTime, 0, "Start time should be reset for charger 0");
+
+        // Bob's balance should be 0 after paying the exact amount he was dealt for this tx
+        assertEq(bob.balance, 0, "Bob balance should be 0 after paying the exact amount dealt for the transaction");
     }
 }

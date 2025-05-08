@@ -4,6 +4,9 @@ pragma solidity >=0.8.2 <0.9.0;
 import "forge-std/Test.sol";
 import "../src/ChargingStation.sol";
 
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
+
 contract ChargingStation_v1_Test is Test {
     ChargingStation_v1 public chargingStation;
     address alice = address(0x1);
@@ -16,6 +19,8 @@ contract ChargingStation_v1_Test is Test {
     );
     event ChargingStarted(address indexed user, uint8 chargerIndex, uint256 timestamp);
     event ChargingEnded(address indexed user, uint8 chargerIndex, uint256 timestamp);
+    event Paused(address account);
+    event Unpaused(address account);
 
     function setUp() public {
         vm.prank(alice);
@@ -319,5 +324,129 @@ contract ChargingStation_v1_Test is Test {
     function testGetReservationTimeRemainingInvalidIndex() public {
         vm.expectRevert("Invalid charger index");
         chargingStation.getReservationTimeRemaining(99);
+    }
+
+    // Pause and Unpause Functionality Tests
+    function test_ownerCanPauseAndUnpause() public {
+        assertFalse(chargingStation.paused(), "Contract should not be paused initially");
+
+        vm.prank(alice);
+        vm.expectEmit(true, false, false, false);
+        emit Paused(alice);
+        chargingStation.pause();
+        assertTrue(chargingStation.paused(), "Contract should be paused after owner pauses");
+
+        vm.prank(alice);
+        vm.expectEmit(true, false, false, false);
+        emit Unpaused(alice);
+        chargingStation.unpause();
+        assertFalse(chargingStation.paused(), "Contract should be unpaused after owner unpauses");
+    }
+
+    function test_nonOwnerCannotPause() public {
+        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, bob));
+        vm.prank(bob);
+        chargingStation.pause();
+    }
+
+    function test_nonOwnerCannotUnpause() public {
+        vm.prank(alice);
+        chargingStation.pause(); // Owner pauses first
+
+        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, bob));
+        vm.prank(bob);
+        chargingStation.unpause();
+    }
+
+    function test_reserveCharger_whenPaused() public {
+        vm.prank(alice);
+        chargingStation.pause();
+
+        vm.expectRevert(Pausable.EnforcedPause.selector);
+        vm.prank(bob);
+        chargingStation.reserveCharger{value: 15 * 1000}(15);
+    }
+
+    function test_startCharging_whenPaused() public {
+        // User1 reserves a charger
+        vm.prank(bob);
+        chargingStation.reserveCharger{value: 15 * 1000}(15);
+
+        vm.prank(alice);
+        chargingStation.pause();
+
+        vm.expectRevert(Pausable.EnforcedPause.selector);
+        vm.prank(bob);
+        chargingStation.startCharging(0);
+    }
+
+    function test_stopCharging_whenPaused() public {
+        // User1 reserves and starts charging
+        vm.prank(bob);
+        chargingStation.reserveCharger{value: 15 * 1000}(15);
+        vm.prank(bob);
+        chargingStation.startCharging(0);
+
+        vm.prank(alice);
+        chargingStation.pause();
+
+        vm.expectRevert(Pausable.EnforcedPause.selector);
+        vm.prank(bob);
+        chargingStation.stopCharging(0);
+    }
+
+    function test_checkAndReleaseExpiredReservation_whenPaused() public {
+        // User1 reserves a charger
+        vm.prank(bob);
+        chargingStation.reserveCharger{value: 15 * 1000}(15);
+
+        vm.prank(alice);
+        chargingStation.pause();
+
+        vm.expectRevert(Pausable.EnforcedPause.selector);
+        chargingStation.checkAndReleaseExpiredReservation(0);
+    }
+
+    function test_functionsWork_afterUnpause() public {
+        vm.prank(alice);
+        chargingStation.pause();
+        assertTrue(chargingStation.paused(), "Contract should be paused");
+
+        vm.prank(alice);
+        chargingStation.unpause();
+        assertFalse(chargingStation.paused(), "Contract should be unpaused");
+
+        // Test reserveCharger
+        vm.prank(bob);
+        uint256 initialBalanceUser1 = bob.balance; // Now get the balance AFTER setting it
+        uint256 reservationCost = 15 * 1000;
+        chargingStation.reserveCharger{value: reservationCost}(15);
+        (address rUser,,,) = chargingStation.chargerReservations(0);
+        assertEq(rUser, bob, "User1 should have reserved charger 0");
+        assertEq(bob.balance, initialBalanceUser1 - reservationCost, "User1 balance incorrect after reservation");
+
+        // Test startCharging
+        vm.prank(bob);
+        chargingStation.startCharging(0);
+        (,,, bool active) = chargingStation.chargerReservations(0);
+        assertTrue(active, "Charger 0 should be active");
+
+        // Test stopCharging
+        vm.prank(bob);
+        chargingStation.stopCharging(0);
+        (rUser,,,) = chargingStation.chargerReservations(0);
+        assertEq(rUser, address(0), "Charger 0 should be available after stopping");
+
+        // Test checkAndReleaseExpiredReservation (indirectly via findAvailableCharger)
+        // Reserve again to make it unavailable
+        vm.prank(charlie);
+        chargingStation.reserveCharger{value: reservationCost}(15);
+
+        // Warp time to expire reservation
+        skip(16 * 60); // Skip 16 minutes
+
+        assertTrue(chargingStation.checkAndReleaseExpiredReservation(0), "Expired reservation should be released");
+        (rUser,,,) = chargingStation.chargerReservations(0);
+        assertEq(rUser, address(0), "Charger 0 should be available after expiration release");
     }
 }
