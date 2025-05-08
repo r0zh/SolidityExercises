@@ -1,0 +1,251 @@
+<?xml version="1.0" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1088pt" height="917pt" viewBox="0.00 0.00 1087.94 917.00">
+<g id="graph0" class="graph" transform="translate(35.41164834439462,949.3857657489142) scale(1.0000000000000004)" data-name="G">
+
+<polygon fill="#2e3e56" stroke="none" points="-4,4 -4,-913 1083.94,-913 1083.94,4 -4,4" style=""/>
+<g id="clust1" class="cluster" data-name="clusterChargingStation_v1">
+
+<path fill="#445773" stroke="#445773" d="M20,-8C20,-8 1059.94,-8 1059.94,-8 1065.94,-8 1071.94,-14 1071.94,-20 1071.94,-20 1071.94,-397 1071.94,-397 1071.94,-403 1065.94,-409 1059.94,-409 1059.94,-409 20,-409 20,-409 14,-409 8,-403 8,-397 8,-397 8,-20 8,-20 8,-14 14,-8 20,-8" style=""/>
+<text text-anchor="middle" x="539.97" y="-392.4" font-family="Times,serif" font-size="14.00" fill="#f0f0f0" style="">ChargingStation_v1</text>
+</g>
+<g id="clust2" class="cluster" data-name="clusterChargingStation_v2">
+
+<path fill="#445773" stroke="#445773" d="M84.19,-417C84.19,-417 501.9,-417 501.9,-417 507.9,-417 513.9,-423 513.9,-429 513.9,-429 513.9,-752 513.9,-752 513.9,-758 507.9,-764 501.9,-764 501.9,-764 84.19,-764 84.19,-764 78.19,-764 72.19,-758 72.19,-752 72.19,-752 72.19,-429 72.19,-429 72.19,-423 78.19,-417 84.19,-417" style=""/>
+<text text-anchor="middle" x="293.04" y="-747.4" font-family="Times,serif" font-size="14.00" fill="#f0f0f0" style="">ChargingStation_v2</text>
+</g>
+<g id="clust3" class="cluster" data-name="cluster_01">
+
+<polygon fill="#2e3e56" stroke="black" points="74.72,-772 74.72,-901 445.66,-901 445.66,-772 74.72,-772" style=""/>
+<text text-anchor="middle" x="260.19" y="-884.4" font-family="Times,serif" font-size="14.00" style="">Legend</text>
+</g>
+<!-- ChargingStation_v1.&lt;Constructor&gt; -->
+<g id="node1" class="node" pointer-events="visible" data-name="ChargingStation_v1.&lt;Constructor&gt;">
+
+<ellipse fill="#ff9797" stroke="#ff9797" stroke-width="3" cx="147.72" cy="-358" rx="67.55" ry="18" style=""/>
+<text text-anchor="middle" x="147.72" y="-353.8" font-family="Times,serif" font-size="14.00" style="">&lt;Constructor&gt;</text>
+</g>
+<!-- ChargingStation_v1.withdraw -->
+<g id="node2" class="node" pointer-events="visible" data-name="ChargingStation_v1.withdraw">
+
+<ellipse fill="#ffbdb9" stroke="#ffbdb9" stroke-width="3" cx="147.72" cy="-304" rx="47.52" ry="18" style=""/>
+<text text-anchor="middle" x="147.72" y="-299.8" font-family="Times,serif" font-size="14.00" style="">withdraw</text>
+</g>
+<!-- ChargingStation_v1.pause -->
+<g id="node3" class="node" pointer-events="visible" data-name="ChargingStation_v1.pause">
+
+<ellipse fill="#ffbdb9" stroke="#ffbdb9" stroke-width="3" cx="147.72" cy="-250" rx="33.05" ry="18" style=""/>
+<text text-anchor="middle" x="147.72" y="-245.8" font-family="Times,serif" font-size="14.00" style="">pause</text>
+</g>
+<!-- ChargingStation_v1._pause -->
+<g id="node13" class="node" pointer-events="visible" data-name="ChargingStation_v1._pause">
+
+<ellipse fill="#edad56" stroke="#edad56" stroke-width="3" cx="410.66" cy="-250" rx="37.71" ry="18" style=""/>
+<text text-anchor="middle" x="410.66" y="-245.8" font-family="Times,serif" font-size="14.00" style="">_pause</text>
+</g>
+<!-- ChargingStation_v1.pause&#45;&gt;ChargingStation_v1._pause -->
+<g id="edge1" class="edge" data-name="ChargingStation_v1.pause-&gt;ChargingStation_v1._pause">
+
+<path fill="none" stroke="#1bc6a6" stroke-width="2" d="M182.03,-250C226.65,-250 306.24,-250 358.49,-250" style=""/>
+<polygon fill="#1bc6a6" stroke="#1bc6a6" stroke-width="2" points="358.45,-253.5 368.45,-250 358.45,-246.5 358.45,-253.5" style=""/>
+</g>
+<!-- ChargingStation_v1.unpause -->
+<g id="node4" class="node" pointer-events="visible" data-name="ChargingStation_v1.unpause">
+
+<ellipse fill="#ffbdb9" stroke="#ffbdb9" stroke-width="3" cx="147.72" cy="-196" rx="42.86" ry="18" style=""/>
+<text text-anchor="middle" x="147.72" y="-191.8" font-family="Times,serif" font-size="14.00" style="">unpause</text>
+</g>
+<!-- ChargingStation_v1._unpause -->
+<g id="node14" class="node" pointer-events="visible" data-name="ChargingStation_v1._unpause">
+
+<ellipse fill="#edad56" stroke="#edad56" stroke-width="3" cx="410.66" cy="-196" rx="47.52" ry="18" style=""/>
+<text text-anchor="middle" x="410.66" y="-191.8" font-family="Times,serif" font-size="14.00" style="">_unpause</text>
+</g>
+<!-- ChargingStation_v1.unpause&#45;&gt;ChargingStation_v1._unpause -->
+<g id="edge2" class="edge" data-name="ChargingStation_v1.unpause-&gt;ChargingStation_v1._unpause">
+
+<path fill="none" stroke="#1bc6a6" stroke-width="2" d="M191.81,-196C234.77,-196 301.13,-196 349.32,-196" style=""/>
+<polygon fill="#1bc6a6" stroke="#1bc6a6" stroke-width="2" points="349.06,-199.5 359.06,-196 349.06,-192.5 349.06,-199.5" style=""/>
+</g>
+<!-- ChargingStation_v1.reserveCharger -->
+<g id="node5" class="node" pointer-events="visible" data-name="ChargingStation_v1.reserveCharger">
+
+<ellipse fill="#ffbdb9" stroke="brown" stroke-width="3" cx="147.72" cy="-142" rx="70.03" ry="18" style=""/>
+<text text-anchor="middle" x="147.72" y="-137.8" font-family="Times,serif" font-size="14.00" style="">reserveCharger</text>
+</g>
+<!-- ChargingStation_v1.findAvailableCharger -->
+<g id="node9" class="node" pointer-events="visible" data-name="ChargingStation_v1.findAvailableCharger">
+
+<ellipse fill="#edad56" stroke="#edad56" stroke-width="3" cx="410.66" cy="-142" rx="95.47" ry="18" style=""/>
+<text text-anchor="middle" x="410.66" y="-137.8" font-family="Times,serif" font-size="14.00" style="">findAvailableCharger</text>
+</g>
+<!-- ChargingStation_v1.reserveCharger&#45;&gt;ChargingStation_v1.findAvailableCharger -->
+<g id="edge3" class="edge" data-name="ChargingStation_v1.reserveCharger-&gt;ChargingStation_v1.findAvailableCharger">
+
+<path fill="none" stroke="#1bc6a6" stroke-width="2" d="M218.99,-142C244.14,-142 273.11,-142 300.76,-142" style=""/>
+<polygon fill="#1bc6a6" stroke="#1bc6a6" stroke-width="2" points="300.74,-145.5 310.74,-142 300.74,-138.5 300.74,-145.5" style=""/>
+</g>
+<!-- ChargingStation_v1.startCharging -->
+<g id="node6" class="node" pointer-events="visible" data-name="ChargingStation_v1.startCharging">
+
+<ellipse fill="#ffbdb9" stroke="#ffbdb9" stroke-width="3" cx="147.72" cy="-88" rx="63.71" ry="18" style=""/>
+<text text-anchor="middle" x="147.72" y="-83.8" font-family="Times,serif" font-size="14.00" style="">startCharging</text>
+</g>
+<!-- ChargingStation_v1.stopCharging -->
+<g id="node7" class="node" pointer-events="visible" data-name="ChargingStation_v1.stopCharging">
+
+<ellipse fill="#ffbdb9" stroke="#ffbdb9" stroke-width="3" cx="698.8" cy="-88" rx="63.15" ry="18" style=""/>
+<text text-anchor="middle" x="698.8" y="-83.8" font-family="Times,serif" font-size="14.00" style="">stopCharging</text>
+</g>
+<!-- ChargingStation_v1.resetReservation -->
+<g id="node10" class="node" pointer-events="visible" data-name="ChargingStation_v1.resetReservation">
+
+<ellipse fill="#edad56" stroke="#edad56" stroke-width="3" cx="977.82" cy="-88" rx="75.28" ry="18" style=""/>
+<text text-anchor="middle" x="977.82" y="-83.8" font-family="Times,serif" font-size="14.00" style="">resetReservation</text>
+</g>
+<!-- ChargingStation_v1.stopCharging&#45;&gt;ChargingStation_v1.resetReservation -->
+<g id="edge4" class="edge" data-name="ChargingStation_v1.stopCharging-&gt;ChargingStation_v1.resetReservation">
+
+<path fill="none" stroke="#1bc6a6" stroke-width="2" d="M763.36,-88C800.4,-88 847.68,-88 888.32,-88" style=""/>
+<polygon fill="#1bc6a6" stroke="#1bc6a6" stroke-width="2" points="888.24,-91.5 898.24,-88 888.24,-84.5 888.24,-91.5" style=""/>
+</g>
+<!-- ChargingStation_v1.checkAndReleaseExpiredReservation -->
+<g id="node8" class="node" pointer-events="visible" data-name="ChargingStation_v1.checkAndReleaseExpiredReservation">
+
+<ellipse fill="#ff9797" stroke="#ff9797" stroke-width="3" cx="698.8" cy="-142" rx="156.81" ry="18" style=""/>
+<text text-anchor="middle" x="698.8" y="-137.8" font-family="Times,serif" font-size="14.00" style="">checkAndReleaseExpiredReservation</text>
+</g>
+<!-- ChargingStation_v1.checkAndReleaseExpiredReservation&#45;&gt;ChargingStation_v1.resetReservation -->
+<g id="edge5" class="edge" data-name="ChargingStation_v1.checkAndReleaseExpiredReservation-&gt;ChargingStation_v1.resetReservation">
+
+<path fill="none" stroke="#1bc6a6" stroke-width="2" d="M793.92,-126.45C814.33,-122.87 835.76,-118.95 855.71,-115 872.8,-111.62 891.18,-107.68 908.33,-103.87" style=""/>
+<polygon fill="#1bc6a6" stroke="#1bc6a6" stroke-width="2" points="908.92,-107.32 917.91,-101.72 907.39,-100.49 908.92,-107.32" style=""/>
+</g>
+<!-- ChargingStation_v1.isChargerAvailable -->
+<g id="node11" class="node" pointer-events="visible" data-name="ChargingStation_v1.isChargerAvailable">
+
+<ellipse fill="#edad56" stroke="#edad56" stroke-width="3" cx="977.82" cy="-142" rx="86.24" ry="18" style=""/>
+<text text-anchor="middle" x="977.82" y="-137.8" font-family="Times,serif" font-size="14.00" style="">isChargerAvailable</text>
+</g>
+<!-- ChargingStation_v1.checkAndReleaseExpiredReservation&#45;&gt;ChargingStation_v1.isChargerAvailable -->
+<g id="edge6" class="edge" data-name="ChargingStation_v1.checkAndReleaseExpiredReservation-&gt;ChargingStation_v1.isChargerAvailable">
+
+<path fill="none" stroke="#1bc6a6" stroke-width="2" d="M856.93,-142C863.76,-142 870.53,-142 877.17,-142" style=""/>
+<polygon fill="#1bc6a6" stroke="#1bc6a6" stroke-width="2" points="877.15,-145.5 887.15,-142 877.15,-138.5 877.15,-145.5" style=""/>
+</g>
+<!-- ChargingStation_v1.findAvailableCharger&#45;&gt;ChargingStation_v1.checkAndReleaseExpiredReservation -->
+<g id="edge7" class="edge" data-name="ChargingStation_v1.findAvailableCharger-&gt;ChargingStation_v1.checkAndReleaseExpiredReservation">
+
+<path fill="none" stroke="#1bc6a6" stroke-width="2" d="M507.34,-142C514.01,-142 520.83,-142 527.74,-142" style=""/>
+<polygon fill="#1bc6a6" stroke="#1bc6a6" stroke-width="2" points="527.66,-145.5 537.66,-142 527.66,-138.5 527.66,-145.5" style=""/>
+</g>
+<!-- ChargingStation_v1.getReservationTimeRemaining -->
+<g id="node12" class="node" pointer-events="visible" data-name="ChargingStation_v1.getReservationTimeRemaining">
+
+<ellipse fill="#ffbdb9" stroke="#ffbdb9" stroke-width="3" cx="147.72" cy="-34" rx="131.93" ry="18" style=""/>
+<text text-anchor="middle" x="147.72" y="-29.8" font-family="Times,serif" font-size="14.00" style="">getReservationTimeRemaining</text>
+</g>
+<!-- ChargingStation_v2.&lt;Constructor&gt; -->
+<g id="node15" class="node" pointer-events="visible" data-name="ChargingStation_v2.&lt;Constructor&gt;">
+
+<ellipse fill="#ff9797" stroke="#ff9797" stroke-width="3" cx="147.72" cy="-713" rx="67.55" ry="18" style=""/>
+<text text-anchor="middle" x="147.72" y="-708.8" font-family="Times,serif" font-size="14.00" style="">&lt;Constructor&gt;</text>
+</g>
+<!-- ChargingStation_v2.withdraw -->
+<g id="node16" class="node" pointer-events="visible" data-name="ChargingStation_v2.withdraw">
+
+<ellipse fill="#ffbdb9" stroke="#ffbdb9" stroke-width="3" cx="147.72" cy="-659" rx="47.52" ry="18" style=""/>
+<text text-anchor="middle" x="147.72" y="-654.8" font-family="Times,serif" font-size="14.00" style="">withdraw</text>
+</g>
+<!-- ChargingStation_v2.pause -->
+<g id="node17" class="node" pointer-events="visible" data-name="ChargingStation_v2.pause">
+
+<ellipse fill="#ffbdb9" stroke="#ffbdb9" stroke-width="3" cx="147.72" cy="-605" rx="33.05" ry="18" style=""/>
+<text text-anchor="middle" x="147.72" y="-600.8" font-family="Times,serif" font-size="14.00" style="">pause</text>
+</g>
+<!-- ChargingStation_v2._pause -->
+<g id="node22" class="node" pointer-events="visible" data-name="ChargingStation_v2._pause">
+
+<ellipse fill="#edad56" stroke="#edad56" stroke-width="3" cx="410.66" cy="-605" rx="37.71" ry="18" style=""/>
+<text text-anchor="middle" x="410.66" y="-600.8" font-family="Times,serif" font-size="14.00" style="">_pause</text>
+</g>
+<!-- ChargingStation_v2.pause&#45;&gt;ChargingStation_v2._pause -->
+<g id="edge8" class="edge" data-name="ChargingStation_v2.pause-&gt;ChargingStation_v2._pause">
+
+<path fill="none" stroke="#1bc6a6" stroke-width="2" d="M182.03,-605C226.65,-605 306.24,-605 358.49,-605" style=""/>
+<polygon fill="#1bc6a6" stroke="#1bc6a6" stroke-width="2" points="358.45,-608.5 368.45,-605 358.45,-601.5 358.45,-608.5" style=""/>
+</g>
+<!-- ChargingStation_v2.unpause -->
+<g id="node18" class="node" pointer-events="visible" data-name="ChargingStation_v2.unpause">
+
+<ellipse fill="#ffbdb9" stroke="#ffbdb9" stroke-width="3" cx="147.72" cy="-551" rx="42.86" ry="18" style=""/>
+<text text-anchor="middle" x="147.72" y="-546.8" font-family="Times,serif" font-size="14.00" style="">unpause</text>
+</g>
+<!-- ChargingStation_v2._unpause -->
+<g id="node23" class="node" pointer-events="visible" data-name="ChargingStation_v2._unpause">
+
+<ellipse fill="#edad56" stroke="#edad56" stroke-width="3" cx="410.66" cy="-551" rx="47.52" ry="18" style=""/>
+<text text-anchor="middle" x="410.66" y="-546.8" font-family="Times,serif" font-size="14.00" style="">_unpause</text>
+</g>
+<!-- ChargingStation_v2.unpause&#45;&gt;ChargingStation_v2._unpause -->
+<g id="edge9" class="edge" data-name="ChargingStation_v2.unpause-&gt;ChargingStation_v2._unpause">
+
+<path fill="none" stroke="#1bc6a6" stroke-width="2" d="M191.81,-551C234.77,-551 301.13,-551 349.32,-551" style=""/>
+<polygon fill="#1bc6a6" stroke="#1bc6a6" stroke-width="2" points="349.06,-554.5 359.06,-551 349.06,-547.5 349.06,-554.5" style=""/>
+</g>
+<!-- ChargingStation_v2.startCharging -->
+<g id="node19" class="node" pointer-events="visible" data-name="ChargingStation_v2.startCharging">
+
+<ellipse fill="#ffbdb9" stroke="#ffbdb9" stroke-width="3" cx="147.72" cy="-497" rx="63.71" ry="18" style=""/>
+<text text-anchor="middle" x="147.72" y="-492.8" font-family="Times,serif" font-size="14.00" style="">startCharging</text>
+</g>
+<!-- ChargingStation_v2.findAvailableCharger -->
+<g id="node21" class="node" pointer-events="visible" data-name="ChargingStation_v2.findAvailableCharger">
+
+<ellipse fill="#edad56" stroke="#edad56" stroke-width="3" cx="410.66" cy="-497" rx="95.47" ry="18" style=""/>
+<text text-anchor="middle" x="410.66" y="-492.8" font-family="Times,serif" font-size="14.00" style="">findAvailableCharger</text>
+</g>
+<!-- ChargingStation_v2.startCharging&#45;&gt;ChargingStation_v2.findAvailableCharger -->
+<g id="edge10" class="edge" data-name="ChargingStation_v2.startCharging-&gt;ChargingStation_v2.findAvailableCharger">
+
+<path fill="none" stroke="#1bc6a6" stroke-width="2" d="M212.88,-497C239.49,-497 271.11,-497 301.13,-497" style=""/>
+<polygon fill="#1bc6a6" stroke="#1bc6a6" stroke-width="2" points="300.85,-500.5 310.85,-497 300.85,-493.5 300.85,-500.5" style=""/>
+</g>
+<!-- ChargingStation_v2.stopCharging -->
+<g id="node20" class="node" pointer-events="visible" data-name="ChargingStation_v2.stopCharging">
+
+<ellipse fill="#ffbdb9" stroke="brown" stroke-width="3" cx="147.72" cy="-443" rx="63.15" ry="18" style=""/>
+<text text-anchor="middle" x="147.72" y="-438.8" font-family="Times,serif" font-size="14.00" style="">stopCharging</text>
+</g>
+<!-- key -->
+<g id="node24" class="node" pointer-events="visible" data-name="key">
+
+<polygon fill="#edad56" stroke="none" stroke-width="3" points="212.72,-868 82.72,-868 82.72,-780 212.72,-780 212.72,-868" style=""/>
+<text text-anchor="start" x="132.35" y="-849.4" font-family="Times,serif" font-size="14.00" style="">Internal Call</text>
+<text text-anchor="start" x="128.46" y="-829.4" font-family="Times,serif" font-size="14.00" style="">External Call</text>
+<text text-anchor="start" x="105.92" y="-809.4" font-family="Times,serif" font-size="14.00" style="">Defined Contract</text>
+<text text-anchor="start" x="92.32" y="-789.4" font-family="Times,serif" font-size="14.00" style="">Undefined Contract</text>
+</g>
+<!-- key2 -->
+<g id="node25" class="node" pointer-events="visible" data-name="key2">
+
+<polygon fill="#edad56" stroke="none" stroke-width="3" points="437.66,-868 383.66,-868 383.66,-780 437.66,-780 437.66,-868" style=""/>
+<text text-anchor="start" x="400.66" y="-849.4" font-family="Times,serif" font-size="14.00" style="">   </text>
+<text text-anchor="start" x="400.66" y="-829.4" font-family="Times,serif" font-size="14.00" style="">   </text>
+<polygon fill="#445773" stroke="none" points="398.66,-804 398.66,-824 423.66,-824 423.66,-804 398.66,-804" style=""/>
+<text text-anchor="start" x="400.66" y="-809.4" font-family="Times,serif" font-size="14.00" style="">   </text>
+<polygon fill="none" stroke="#e8726d" points="400.66,-786 400.66,-802 421.66,-802 421.66,-786 400.66,-786" style=""/>
+</g>
+<!-- key&#45;&gt;key2 -->
+<g id="edge11" class="edge" data-name="key-&gt;key2">
+
+<path fill="none" stroke="#1bc6a6" stroke-width="2" d="M205.72,-854C286.53,-854 309.93,-854 384.68,-854" style=""/>
+<polygon fill="#1bc6a6" stroke="#1bc6a6" stroke-width="2" points="384.64,-857.5 394.64,-854 384.64,-850.5 384.64,-857.5" style=""/>
+</g>
+<!-- key&#45;&gt;key2 -->
+<g id="edge12" class="edge" data-name="key-&gt;key2">
+
+<path fill="none" stroke="white" stroke-width="2" d="M205.72,-834C286.53,-834 309.93,-834 384.68,-834" style=""/>
+<polygon fill="white" stroke="white" stroke-width="2" points="384.64,-837.5 394.64,-834 384.64,-830.5 384.64,-837.5" style=""/>
+</g>
+</g>
+</svg>
