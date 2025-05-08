@@ -2,53 +2,83 @@
 pragma solidity >=0.8.2 <0.9.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 import "forge-std/console.sol";
 
 /**
  * @title ChargingStation_v1
- * @notice This contract implements a prepaid reservation system for EV charging stations.
- * Users pay upfront for a fixed charging time period, after which the charger becomes available again.
+ * @notice Prepaid EV charging station reservations (Version 1).
  */
-contract ChargingStation_v1 is Ownable {
+contract ChargingStation_v1 is Ownable, Pausable {
+    // ==============================================================================
+    // State Variables
+    // ==============================================================================
+
     uint8 public constant MAX_CHARGERS = 32;
-    uint256 public constant MIN_MINUTES = 15; // Minimum reservation time (15 minutes)
-    uint256 public constant MAX_MINUTES = 240; // Maximum reservation time (4 hours)
-
-    // Events
-    event ReservationCreated(
-        address indexed user, uint8 chargerIndex, uint256 startTime, uint256 endTime, uint256 amountPaid
-    );
-    event ChargingStarted(address indexed user, uint8 chargerIndex, uint256 timestamp);
-    event ChargingEnded(address indexed user, uint8 chargerIndex, uint256 timestamp);
-
-    struct Reservation {
-        address user; // User who made the reservation
-        uint256 startTime; // Start time of the reservation
-        uint256 endTime; // End time of the reservation
-        bool active; // Whether charging has been initiated
-    }
+    uint256 public constant MIN_MINUTES = 15;
+    uint256 public constant MAX_MINUTES = 240; // 4 hours
 
     uint8 public numChargers;
     uint256 public costPerMinute;
-
-    // Array that tracks reservations for each charger
     Reservation[] public chargerReservations;
 
+    // ==============================================================================
+    // Events
+    // ==============================================================================
+
+    event ReservationCreated(
+        address indexed user, uint8 chargerIndex, uint256 startTime, uint256 endTime, uint256 amountPaid
+    );
+
+    event ChargingStarted(address indexed user, uint8 chargerIndex, uint256 timestamp);
+
+    event ChargingEnded(address indexed user, uint8 chargerIndex, uint256 timestamp);
+
+    // ==============================================================================
+    // Structs
+    // ==============================================================================
+
+    /**
+     * @notice Details of a charger reservation.
+     * @param user Reserving user.
+     * @param startTime Reservation start time.
+     * @param endTime Reservation end time.
+     * @param active True if charging has been initiated.
+     */
+    struct Reservation {
+        address user;
+        uint256 startTime;
+        uint256 endTime;
+        bool active;
+    }
+
+    // ==============================================================================
+    // Constructor
+    // ==============================================================================
+
+    /**
+     * @notice Initializes the charging station.
+     * @param _numChargers Number of chargers (0 < _numChargers < MAX_CHARGERS).
+     * @param _costPerMinute Cost per minute for charging (> 0).
+     */
     constructor(uint8 _numChargers, uint256 _costPerMinute) Ownable(msg.sender) {
         require(_numChargers > 0 && _numChargers < MAX_CHARGERS, "Invalid number of chargers");
         require(_costPerMinute > 0, "Cost per minute must be greater than zero");
+
         costPerMinute = _costPerMinute;
         numChargers = _numChargers;
 
-        // Initialize reservations for all chargers. Altough this will cost gas, it is a one-time cost because
-        // pre-allocating the entire array at deployment is more gas-efficient than growing it dynamically
         for (uint8 i = 0; i < _numChargers; i++) {
             chargerReservations.push(Reservation({user: address(0), startTime: 0, endTime: 0, active: false}));
         }
     }
 
+    // ==============================================================================
+    // External Functions
+    // ==============================================================================
+
     /**
-     * @notice Allows admin to withdraw contract funds
+     * @notice Owner can withdraw contract ETH balance.
      */
     function withdraw() external onlyOwner {
         (bool success,) = msg.sender.call{value: address(this).balance}("");
@@ -56,10 +86,24 @@ contract ChargingStation_v1 is Ownable {
     }
 
     /**
-     * @notice Reserves a charger for a specified time period and pays upfront
-     * @param min The number of minutes to reserve the charger
+     * @notice Owner can pause the contract.
      */
-    function reserveCharger(uint256 min) external payable {
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    /**
+     * @notice Owner can unpause the contract.
+     */
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+
+    /**
+     * @notice Reserves a charger by paying upfront.
+     * @param min Duration of reservation in minutes (MIN_MINUTES <= min <= MAX_MINUTES).
+     */
+    function reserveCharger(uint256 min) external payable whenNotPaused {
         require(min >= MIN_MINUTES, "Reservation time below minimum");
         require(min <= MAX_MINUTES, "Reservation time exceeds maximum");
 
@@ -76,7 +120,6 @@ contract ChargingStation_v1 is Ownable {
 
         emit ReservationCreated(msg.sender, chargerIndex, startTime, endTime, cost);
 
-        // Refund any excess payment
         if (msg.value > cost) {
             (bool success,) = msg.sender.call{value: msg.value - cost}("");
             require(success, "Refund failed");
@@ -84,10 +127,10 @@ contract ChargingStation_v1 is Ownable {
     }
 
     /**
-     * @notice Start charging with an existing reservation
-     * @param chargerIndex The index of the charger to use
+     * @notice User starts charging on their reserved charger.
+     * @param chargerIndex Index of the charger.
      */
-    function startCharging(uint8 chargerIndex) external {
+    function startCharging(uint8 chargerIndex) external whenNotPaused {
         require(chargerIndex < numChargers, "Invalid charger index");
 
         Reservation storage reservation = chargerReservations[chargerIndex];
@@ -100,55 +143,52 @@ contract ChargingStation_v1 is Ownable {
     }
 
     /**
-     * @notice Manually end charging before reservation expires (optional)
-     * @param chargerIndex The index of the charger to stop
+     * @notice User manually stops charging before reservation expiry.
+     * @param chargerIndex Index of the charger.
      */
-    function stopCharging(uint8 chargerIndex) external {
+    function stopCharging(uint8 chargerIndex) external whenNotPaused {
         require(chargerIndex < numChargers, "Invalid charger index");
 
         Reservation storage reservation = chargerReservations[chargerIndex];
         require(reservation.user == msg.sender, "Not your reservation");
         require(reservation.active, "Charging not started");
 
-        // Mark charger as available
         reservation.active = false;
-        reservation.endTime = block.timestamp;
-
         emit ChargingEnded(msg.sender, chargerIndex, block.timestamp);
-
-        // Reset reservation to make charger available
         resetReservation(chargerIndex);
     }
 
-    /**
-     * @notice Checks if a charger's reservation has expired and makes it available if needed
-     * @param chargerIndex The charger to check
-     * @return True if charger is available after check
-     */
-    function checkAndReleaseExpiredReservation(uint8 chargerIndex) public returns (bool) {
-        require(chargerIndex < numChargers, "Invalid charger index");
+    // ==============================================================================
+    // Public Functions
+    // ==============================================================================
 
+    /**
+     * @notice Checks and releases an expired reservation.
+     * @param chargerIndex Index of the charger to check.
+     * @return True if the charger is or becomes available.
+     */
+    function checkAndReleaseExpiredReservation(uint8 chargerIndex) public whenNotPaused returns (bool) {
+        require(chargerIndex < numChargers, "Invalid charger index");
         Reservation storage reservation = chargerReservations[chargerIndex];
 
         if (reservation.user != address(0) && block.timestamp > reservation.endTime) {
             if (reservation.active) {
-                emit ChargingEnded(reservation.user, chargerIndex, block.timestamp);
+                emit ChargingEnded(reservation.user, chargerIndex, reservation.endTime);
             }
-
             resetReservation(chargerIndex);
             return true;
         }
-
         return isChargerAvailable(chargerIndex);
     }
 
     /**
-     * @notice Finds an available charger
-     * @return The index of the first available charger
+     * @notice Finds the first available charger.
+     * @dev Calls {checkAndReleaseExpiredReservation} for each charger.
+     * This function should be on the frontend to avoid gas issues.
+     * @return Index of an available charger.
      */
     function findAvailableCharger() public returns (uint8) {
         for (uint8 i = 0; i < numChargers; i++) {
-            // First check if any expired reservations need to be released
             if (checkAndReleaseExpiredReservation(i)) {
                 return i;
             }
@@ -156,84 +196,123 @@ contract ChargingStation_v1 is Ownable {
         revert("No available chargers");
     }
 
-    /**
-     * @notice Checks if a charger is available without changing state
-     * @param chargerIndex The charger to check
-     * @return True if the charger is available
-     */
-    function isChargerAvailable(uint8 chargerIndex) public view returns (bool) {
-        require(chargerIndex < numChargers, "Invalid charger index");
-
-        Reservation storage reservation = chargerReservations[chargerIndex];
-
-        // Charger is available if there's no reservation or if existing reservation has expired
-        return (reservation.user == address(0)) || (block.timestamp > reservation.endTime);
-    }
+    // ==============================================================================
+    // Internal Functions
+    // ==============================================================================
 
     /**
-     * @notice Reset a charger's reservation
-     * @param chargerIndex The charger to reset
+     * @notice Resets a charger's reservation to its default empty state.
+     * @param chargerIndex Index of the charger to reset.
      */
     function resetReservation(uint8 chargerIndex) internal {
         chargerReservations[chargerIndex] = Reservation({user: address(0), startTime: 0, endTime: 0, active: false});
     }
 
+    // ==============================================================================
+    // View/Pure Functions
+    // ==============================================================================
+
     /**
-     * @notice Returns time remaining for a reservation in seconds
-     * @param chargerIndex The charger to check
-     * @return The number of seconds remaining, or 0 if expired or not reserved
+     * @notice Checks if a specific charger is available.
+     * @param chargerIndex Index of the charger.
+     * @return True if available, false otherwise.
+     */
+    function isChargerAvailable(uint8 chargerIndex) public view returns (bool) {
+        require(chargerIndex < numChargers, "Invalid charger index");
+        Reservation storage reservation = chargerReservations[chargerIndex];
+        return (reservation.user == address(0)) || (block.timestamp > reservation.endTime);
+    }
+
+    /**
+     * @notice Gets remaining time for an active reservation.
+     * @param chargerIndex Index of the charger.
+     * @return Remaining time in seconds, or 0 if no active/valid reservation.
      */
     function getReservationTimeRemaining(uint8 chargerIndex) external view returns (uint256) {
         require(chargerIndex < numChargers, "Invalid charger index");
-
         Reservation storage reservation = chargerReservations[chargerIndex];
 
         if (reservation.user == address(0) || block.timestamp >= reservation.endTime) {
             return 0;
         }
-
         return reservation.endTime - block.timestamp;
     }
 }
 
 /**
  * @title ChargingStation_v2
- * @notice This contract allows users to charge their electric vehicles and pay for the time spent charging.
- * The cost is calculated based on the time spent charging and the cost per minute.
+ * @notice Pay-per-use EV charging station (Version 2).
  */
-contract ChargingStation_v2 is Ownable {
+contract ChargingStation_v2 is Ownable, Pausable {
+    // ==============================================================================
+    // State Variables
+    // ==============================================================================
+
     uint8 public constant MAX_CHARGERS = 32;
-
-    // Events
-    event ChargingStarted(address indexed user, uint256 timestamp, uint8 chargerIndex);
-    event CostCharged(address indexed user, uint256 cost);
-
     uint8 public numChargers;
     uint256 public costPerMinute;
+    ChargingSession[] public chargingSessions;
 
+    // ==============================================================================
+    // Events
+    // ==============================================================================
+
+    /**
+     * @notice Emitted when a user starts charging.
+     * @param user Address of the user.
+     * @param timestamp Start time (Unix timestamp).
+     * @param chargerIndex Index of the charger.
+     */
+    event ChargingStarted(address indexed user, uint256 timestamp, uint8 chargerIndex);
+
+    /**
+     * @notice Emitted when a user stops charging and payment is processed.
+     * @param user Address of the user.
+     * @param cost Total cost for the session.
+     */
+    event CostCharged(address indexed user, uint256 cost);
+
+    // ==============================================================================
+    // Structs
+    // ==============================================================================
+
+    /**
+     * @notice Details of an active charging session.
+     * @param user User currently charging.
+     * @param startTime Session start time.
+     */
     struct ChargingSession {
         address user;
         uint256 startTime;
     }
 
-    ChargingSession[] public chargingSessions;
+    // ==============================================================================
+    // Constructor
+    // ==============================================================================
 
+    /**
+     * @notice Initializes the charging station.
+     * @param _numChargers Number of chargers (0 < _numChargers < MAX_CHARGERS).
+     * @param _costPerMinute Cost per minute for charging (> 0).
+     */
     constructor(uint8 _numChargers, uint256 _costPerMinute) Ownable(msg.sender) {
         require(_numChargers > 0 && _numChargers < MAX_CHARGERS, "Invalid number of chargers");
         require(_costPerMinute > 0, "Cost per minute must be greater than zero");
+
         costPerMinute = _costPerMinute;
         numChargers = _numChargers;
 
-        // Initialize the array with empty sessions
         for (uint8 i = 0; i < _numChargers; i++) {
             chargingSessions.push(ChargingSession({user: address(0), startTime: 0}));
         }
     }
 
-    // Admin functions
+    // ==============================================================================
+    // External Functions
+    // ==============================================================================
 
     /**
-     * @notice Withdraws the balance of the contract to the owner's address.
+     * @notice Owner can withdraw contract ETH balance.
      */
     function withdraw() external onlyOwner {
         (bool success,) = msg.sender.call{value: address(this).balance}("");
@@ -241,56 +320,69 @@ contract ChargingStation_v2 is Ownable {
     }
 
     /**
-     * @notice Starts charging for the user.
-     * @dev This function uses findAvailableCharger to find an available charger and starts the charging process if one is available.
-     * In a real-world scenario, there are many ways to approach this. This function assumes that the user will ask first for a charger and then start charging.
-     * Another option would be to pass the chargers as an argument to the function, since, in the real world, the user will be able to physically see which
-     * chargers are available.
+     * @notice Owner can pause the contract.
      */
-    function startCharging() external {
-        require(numChargers > 0, "No chargers available");
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    /**
+     * @notice Owner can unpause the contract.
+     */
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+
+    /**
+     * @notice Starts a charging session for `msg.sender` on an available charger.
+     * @dev Emits {ChargingStarted}.
+     */
+    function startCharging() external whenNotPaused {
+        require(numChargers > 0, "No chargers available in station");
         uint8 chargerIndex = findAvailableCharger();
-        require(chargerIndex < numChargers, "No available chargers");
-        // Store both the user and the start time
+
         chargingSessions[chargerIndex] = ChargingSession({user: msg.sender, startTime: block.timestamp});
         emit ChargingStarted(msg.sender, block.timestamp, chargerIndex);
     }
 
     /**
-     * @notice Stops charging for the user.
-     * @dev This function calculates the cost of charging based on the time spent and the cost per minute.
-     * It also resets the charger start time to 0, so the charger can be used again.
+     * @notice Stops an ongoing charging session for `msg.sender`.
+     * @param chargerIndex Index of the charger.
+     * @dev Calculates cost; user must send sufficient ETH. Excess is refunded.
      */
-    function stopCharging(uint8 chargerIndex) external payable {
+    function stopCharging(uint8 chargerIndex) external payable whenNotPaused {
         require(chargerIndex < numChargers, "Invalid charger index");
 
         ChargingSession storage session = chargingSessions[chargerIndex];
         require(session.startTime > 0, "Charger not in use");
         require(session.user == msg.sender, "Not your charging session");
 
-        uint256 timeSpent = block.timestamp - session.startTime;
-        // Calculation to avoid truncation issues
-        uint256 min = (timeSpent + 59) / 60; // Round up to next minute
-        uint256 cost = min * costPerMinute;
+        uint256 timeSpentSeconds = block.timestamp - session.startTime;
+        uint256 minutesCharged = (timeSpentSeconds + 59) / 60;
+        if (timeSpentSeconds == 0) {
+            minutesCharged = 1; // Charge for at least one minute
+        }
+        uint256 cost = minutesCharged * costPerMinute;
 
         require(msg.value >= cost, "Insufficient payment");
 
         chargingSessions[chargerIndex] = ChargingSession({user: address(0), startTime: 0});
-
         emit CostCharged(msg.sender, cost);
 
-        // Refund excess payment if any
         if (msg.value > cost) {
             (bool success,) = msg.sender.call{value: msg.value - cost}("");
             require(success, "Refund failed");
         }
     }
 
-    // FUNCTIONS THAT SHOULD BE ON THE FRONTEND
+    // ==============================================================================
+    // View/Pure Functions
+    // ==============================================================================
 
     /**
-     * @notice Finds the first available charger.
-     * @return The index of the first available charger.
+     * @notice Finds the index of the first available charger.
+     * @return Index of an available charger.
+     * @dev This function should be on the frontend to avoid gas issues.
      */
     function findAvailableCharger() internal view returns (uint8) {
         for (uint8 i = 0; i < numChargers; i++) {
